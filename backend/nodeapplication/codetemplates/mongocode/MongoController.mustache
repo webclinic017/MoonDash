@@ -1,0 +1,12 @@
+import { AbstractMongoController } from "../AbstractMongoController";
+import { {{SchemaName}}Schema } from "@mongo/schemas/{{SchemaNameSmall}}/{{SchemaName}}Schema";
+import { {{SchemaName}}Model } from "@mongo/models/{{SchemaNameSmall}}/{{SchemaName}}Model";
+import { I{{SchemaName}}Schema } from "@mongo/schemas/{{SchemaNameSmall}}/I{{SchemaName}}Schema";
+
+export class {{SchemaName}}MongoController extends AbstractMongoController<
+  I{{SchemaName}}Schema
+> {
+  constructor() {
+    super({{SchemaName}}Schema, {{SchemaName}}Model);
+  }
+}

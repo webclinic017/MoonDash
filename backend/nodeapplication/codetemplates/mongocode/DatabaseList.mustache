@@ -1,0 +1,9 @@
+{{#DBNames}}
+import { {{DB}} } from "./{{DB}}";
+{{/DBNames}}
+
+export const DatabaseList = {
+  {{#DBNames}}
+  {{DB}}: {{DB}},
+  {{/DBNames}}
+};

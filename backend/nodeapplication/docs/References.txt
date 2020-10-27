@@ -1,0 +1,7 @@
+https://expressjs.com/en/starter/hello-world.html
+https://medium.com/@erashu212/s-o-l-i-d-in-typescript-c0e4fe6c345a?
+https://itnext.io/production-ready-node-js-rest-apis-setup-using-typescript-postgresql-and-redis-a9525871407
+https://stackify.com/winston-logging-tutorial/
+https://www.digitalocean.com/community/tutorials/how-to-use-winston-to-log-node-js-applications
+https://refactoring.guru/design-patterns/singleton/typescript/example
+https://hackernoon.com/import-json-into-typescript-8d465beded79

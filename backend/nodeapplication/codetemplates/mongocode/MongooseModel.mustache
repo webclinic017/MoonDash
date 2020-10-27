@@ -1,0 +1,9 @@
+import { model } from "mongoose";
+import { {{DBName}} } from "@mongo/databases/{{DBName}}";
+import { {{SchemaName}}Schema } from "@mongo/schemas/{{SchemaNameSmall}}/{{SchemaName}}Schema";
+
+export const {{SchemaName}}Model = model(
+  {{DBName}}.collections.{{SchemaName}},
+  {{SchemaName}}Schema,
+  {{DBName}}.collections.{{SchemaName}}   
+);

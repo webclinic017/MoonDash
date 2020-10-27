@@ -1,0 +1,15 @@
+import { Response, Request } from "express";
+import { {{SchemaName}} } from "@services/{{SchemaNameSmall}}/{{SchemaName}}";
+import { StatusConstants } from "@constants/StatusConstants";
+import { AbstractServiceRouteController } from "../AbstractServiceRouteController";
+
+export class {{SchemaName}}RouteController extends AbstractServiceRouteController {
+  constructor() {
+    super("/{{SchemaName}}");
+  }
+
+  public async runService(req: Request, resp: Response): Promise<any> {
+    let response = await {{SchemaName}}.executeService();
+    resp.status(StatusConstants.code200).send(response);
+  }
+}

@@ -1,0 +1,11 @@
+import { AbstractDBRouteController } from "../AbstractDBRouteController";
+import { {{SchemaName}}MongoController } from "@mongo/controller/{{SchemaNameSmall}}/{{SchemaName}}MongoController";
+import { I{{SchemaName}}Schema } from "@mongo/schemas/{{SchemaNameSmall}}/I{{SchemaName}}Schema";
+
+export class {{SchemaName}}RouteController extends AbstractDBRouteController<
+  I{{SchemaName}}Schema
+> {
+  constructor() {
+    super("/{{DBName}}/{{SchemaName}}", new {{SchemaName}}MongoController());
+  }
+}

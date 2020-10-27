@@ -1,0 +1,4 @@
+{
+  "connectionURL": "mongodb+srv://<username>:<pass>@dhairyamon-1yoii.mongodb.net",
+  "connectionOptions": "?retryWrites=true&w=majority"
+}
