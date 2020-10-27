@@ -1,0 +1,357 @@
+<div class="row">
+  <div class="col-md-12">
+    <nb-card>
+      <nb-card-header>Record Assets</nb-card-header>
+      <nb-card-body>
+        <nb-select [selected]="selectedForm" (selectedChange)="changeForm($event)" placeholder="Select Form">
+          <nb-option *ngFor="let form of forms" [value]="form">{{ form }}</nb-option>
+        </nb-select>
+
+        <div *ngIf="isFixedIncomeVisible">
+          <form
+            #f="ngForm"
+            (ngSubmit)="saveForm(f)"
+            (reset)="resetForm(f)"
+            name="fixedIncomeForm"
+            style="margin-top: 15px;"
+          >
+            <div class="form-group">
+              <nb-form-field>
+                <p nbPrefix><strong>Rs. </strong></p>
+                <input
+                  type="number"
+                  nbInput
+                  fullWidth
+                  placeholder="Investment Amount"
+                  [(ngModel)]="fixedIncomeInfo.investmentValue"
+                  id="fixedIncomeInvestmentValue"
+                  #fixedIncomeInvestmentValue="ngModel"
+                  name="fixedIncomeInvestmentValue"
+                  required
+                  minlength="1"
+                  [status]="fixedIncomeInvestmentValue.valid ? 'success' : 'danger'"
+                />
+              </nb-form-field>
+            </div>
+            <div class="form-group">
+              <input
+                nbInput
+                fullWidth="true"
+                placeholder="Investment Date"
+                [nbDatepicker]="formpicker"
+                [(ngModel)]="fixedIncomeInfo.investmentDate"
+                name="fixedIncomeInvestmentDate"
+                id="fixedIncomeInvestmentDate"
+                #fixedIncomeInvestmentDate="ngModel"
+                required
+                [status]="fixedIncomeInvestmentDate.valid ? 'success' : 'danger'"
+                (ng-change)="getPeriod()"
+              />
+              <nb-datepicker #formpicker></nb-datepicker>
+            </div>
+            <div class="form-group">
+              <input
+                fullWidth="true"
+                nbInput
+                placeholder="Maturity Date"
+                [nbDatepicker]="formpicker2"
+                [(ngModel)]="fixedIncomeInfo.maturityDate"
+                name="fixedIncomeMaturityDate"
+                required
+                id="fixedIncomeMaturityDate"
+                #fixedIncomeMaturityDate="ngModel"
+                [status]="fixedIncomeMaturityDate.valid ? 'success' : 'danger'"
+                (ng-change)="getPeriod()"
+              />
+              <nb-datepicker #formpicker2></nb-datepicker>
+            </div>
+            <div class="form-group">
+              <nb-form-field>
+                <p nbSuffix style="margin-right: 20px;"><strong>Days </strong></p>
+
+                <input
+                  type="number"
+                  nbInput
+                  fullWidth
+                  placeholder="Period"
+                  [(ngModel)]="fixedIncomeInfo.period"
+                  name="fixedIncomePeriod"
+                  required
+                  id="fixedIncomePeriod"
+                  #fixedIncomePeriod="ngModel"
+                  [status]="fixedIncomePeriod.valid ? 'success' : 'danger'"
+                  [placeholder]="getPeriod() ? fixedIncomeInfo.period.toString() : 'Period'"
+                  [disabled]="getPeriod()"
+                />
+              </nb-form-field>
+            </div>
+            <div class="form-group">
+              <nb-form-field>
+                <p nbPrefix><strong>% </strong></p>
+
+                <input
+                  type="number"
+                  nbInput
+                  fullWidth
+                  placeholder="Rate of Interest"
+                  [(ngModel)]="fixedIncomeInfo.rateOfInterest"
+                  name="fixedIncomeRateOfInterest"
+                  required
+                  id="fixedIncomeRateOfInterest"
+                  #fixedIncomeRateOfInterest="ngModel"
+                  [status]="fixedIncomeRateOfInterest.valid ? 'success' : 'danger'"
+                />
+              </nb-form-field>
+            </div>
+
+            <div class="item">
+              <button
+                type="submit"
+                nbButton
+                status="success"
+                [disabled]="
+                  !fixedIncomeInfo.investmentValue ||
+                  !fixedIncomeInfo.investmentDate ||
+                  !fixedIncomeInfo.maturityDate ||
+                  !fixedIncomeInfo.period ||
+                  !fixedIncomeInfo.rateOfInterest
+                "
+              >
+                Save
+              </button>
+              <button type="reset" nbButton status="danger">
+                Reset
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div *ngIf="isStocksVisible">
+          <form #f="ngForm" (ngSubmit)="saveForm(f)" (reset)="resetForm(f)" name="stocksForm" style="margin-top: 15px;">
+            <div class="form-group">
+              <input
+                type="text"
+                nbInput
+                #autoInput
+                fullWidth
+                placeholder="Symbol"
+                [(ngModel)]="stocksInfo.stockSymbol"
+                id="stocksSymbol"
+                name="stocksSymbol"
+                #stocksSymbol="ngModel"
+                minlength="1"
+                required
+                id="stocksSymbol"
+                #stocksSymbol="ngModel"
+                [status]="stocksSymbol.valid ? 'success' : 'danger'"
+                [nbAutocomplete]="auto"
+                (input)="onChange()"
+              />
+
+              <nb-autocomplete #auto (selectedChange)="getStock($event)">
+                <nb-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+                  {{ option }}
+                </nb-option>
+              </nb-autocomplete>
+            </div>
+
+            <div class="form-group">
+              <input
+                type="number"
+                nbInput
+                fullWidth
+                [(ngModel)]="stocksInfo.investmentValue"
+                id="stocksInvestmentValue"
+                name="stocksInvestmentValue"
+                #stocksInvestmentValue="ngModel"
+                minlength="1"
+                required
+                id="stocksInvestmentValue"
+                #stocksInvestmentValue="ngModel"
+                [status]="stocksInvestmentValue.valid ? 'success' : 'danger'"
+                [placeholder]="getInvestmentValue() ? stocksInfo.investmentValue.toString() : 'Investment Amount'"
+                [disabled]="getInvestmentValue()"
+              />
+            </div>
+            <div class="form-group">
+              <input
+                nbInput
+                placeholder="Investment Date"
+                [nbDatepicker]="formpicker"
+                [(ngModel)]="stocksInfo.investmentDate"
+                name="stocksInvestmentDate"
+                required
+                id="stocksInvestmentDate"
+                #stocksInvestmentDate="ngModel"
+                [status]="stocksInvestmentDate.valid ? 'success' : 'danger'"
+              />
+              <nb-datepicker #formpicker></nb-datepicker>
+            </div>
+            <div class="form-group">
+              <input
+                type="number"
+                nbInput
+                fullWidth
+                placeholder="Price"
+                [(ngModel)]="stocksInfo.price"
+                id="stocksprice"
+                name="stocksprice"
+                #stocksprice="ngModel"
+                minlength="1"
+                required
+                [status]="stocksprice.valid ? 'success' : 'danger'"
+                (ng-change)="getInvestmentValue()"
+              />
+            </div>
+            <div class="form-group">
+              <input
+                type="number"
+                nbInput
+                fullWidth
+                placeholder="Quantity"
+                [(ngModel)]="stocksInfo.quantity"
+                name="stocksQuantity"
+                required
+                id="stocksQuantity"
+                #stocksQuantity="ngModel"
+                [status]="stocksQuantity.valid ? 'success' : 'danger'"
+                (ng-change)="getInvestmentValue()"
+              />
+            </div>
+            <div class="item">
+              <button
+                type="submit"
+                nbButton
+                status="success"
+                [disabled]="
+                  !stocksInfo.investmentValue || !stocksInfo.investmentDate || !stocksInfo.price || !stocksInfo.quantity
+                "
+              >
+                Save
+              </button>
+              <button type="reset" nbButton status="danger">
+                Reset
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div *ngIf="isMutualFundsVisible">
+          <form
+            #f="ngForm"
+            (ngSubmit)="saveForm(f)"
+            (reset)="resetForm(f)"
+            name="mutualFundsForm"
+            style="margin-top: 15px;"
+          >
+            <div class="form-group">
+              <input
+                type="text"
+                nbInput
+                #autoInput
+                fullWidth
+                placeholder="Symbol"
+                [(ngModel)]="mutualFundsInfo.fundName"
+                id="fundSymbol"
+                name="fundSymbol"
+                #fundSymbol="ngModel"
+                minlength="1"
+                required
+                id="fundSymbol"
+                #fundSymbol="ngModel"
+                [status]="fundSymbol.valid ? 'success' : 'danger'"
+                [nbAutocomplete]="auto"
+                (input)="onFundSymbolChange()"
+                autocomplete="off"
+              />
+
+              <nb-autocomplete #auto (selectedChange)="getFund($event)">
+                <nb-option *ngFor="let option of filteredFundOptions$ | async" [value]="option.schemeName" onclick="">
+                  {{ option.schemeName }}
+                </nb-option>
+              </nb-autocomplete>
+            </div>
+            <div class="form-group">
+              <input
+                type="number"
+                nbInput
+                fullWidth
+                placeholder="Investment Amount"
+                [(ngModel)]="mutualFundsInfo.investmentValue"
+                name="mutualFundsInvestmentValue"
+                #mutualFundsInvestmentValue="ngModel"
+                required
+                minlength="1"
+                id="mutualFundsInvestmentValue"
+                #mutualFundsInvestmentValue="ngModel"
+                [status]="mutualFundsInvestmentValue.valid ? 'success' : 'danger'"
+                [placeholder]="
+                  getMFInvestmentValue() ? mutualFundsInfo.investmentValue.toString() : 'Investment Amount'
+                "
+                [disabled]="getMFInvestmentValue()"
+              />
+            </div>
+            <div class="form-group">
+              <input
+                nbInput
+                placeholder="Investment Date"
+                [nbDatepicker]="formpicker"
+                [(ngModel)]="mutualFundsInfo.investmentDate"
+                name="mutualFundsInvestmentDate"
+                required
+                id="mutualFundsInvestmentDate"
+                #mutualFundsInvestmentDate="ngModel"
+                [status]="mutualFundsInvestmentDate.valid ? 'success' : 'danger'"
+              />
+              <nb-datepicker #formpicker></nb-datepicker>
+            </div>
+            <div class="form-group">
+              <input
+                nbInput
+                placeholder="Price"
+                [(ngModel)]="mutualFundsInfo.price"
+                name="mutualFundsprice"
+                required
+                id="mutualFundsprice"
+                #mutualFundsprice="ngModel"
+                [status]="mutualFundsprice.valid ? 'success' : 'danger'"
+              />
+            </div>
+            <div class="form-group">
+              <input
+                type="number"
+                nbInput
+                fullWidth
+                placeholder="Quantity"
+                [(ngModel)]="mutualFundsInfo.quantity"
+                name="mutualFundsQuantity"
+                required
+                id="mutualFundsQuantity"
+                #mutualFundsQuantity="ngModel"
+                [status]="mutualFundsQuantity.valid ? 'success' : 'danger'"
+              />
+            </div>
+            <div class="item">
+              <button
+                type="submit"
+                nbButton
+                status="success"
+                [disabled]="
+                  !mutualFundsInfo.investmentValue ||
+                  !mutualFundsInfo.investmentDate ||
+                  !mutualFundsInfo.price ||
+                  !mutualFundsInfo.quantity
+                "
+              >
+                Save
+              </button>
+              <button type="reset" nbButton status="danger">
+                Reset
+              </button>
+            </div>
+          </form>
+        </div>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</div>

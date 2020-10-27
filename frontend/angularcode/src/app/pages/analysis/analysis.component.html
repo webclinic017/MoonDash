@@ -1,0 +1,21 @@
+<div class="container">
+  <nb-card>
+    <nb-card-header style="display: flex; flex-direction: row; justify-content: space-between;">
+      <input #autoInput nbInput type="text" (input)="onChange()" placeholder="Select Stock" [nbAutocomplete]="auto" />
+
+      <nb-autocomplete #auto (selectedChange)="getStock($event)">
+        <nb-option *ngFor="let option of filteredOptions$ | async" [value]="option">
+          {{ option }}
+        </nb-option>
+      </nb-autocomplete>
+
+      <nb-radio-group (valueChange)="optionTypeChange($event)" style="display: flex; flex-direction: row;">
+        <nb-radio value="1" [checked]="true">Index Options</nb-radio>
+        <nb-radio value="2" [disabled]="true">Stock Options</nb-radio>
+      </nb-radio-group>
+    </nb-card-header>
+    <nb-card-body>
+      <app-optionchain> </app-optionchain>
+    </nb-card-body>
+  </nb-card>
+</div>

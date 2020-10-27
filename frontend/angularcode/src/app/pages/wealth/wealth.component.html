@@ -1,0 +1,43 @@
+<router-outlet>
+  <div class="container">
+    <div width="100%" height="500px"></div>
+    <!-- <app-asset-form> </app-asset-form> -->
+
+    <nb-card>
+      <nb-card-header>
+        <button (click)="openAssetWindowForm()" nbButton>Record an Asset</button>
+      </nb-card-header>
+      <nb-card-body>
+        <nb-tabset>
+          <nb-tab tabTitle="Total Assets">
+            <app-total-assets *ngIf="wealthDocument" [(wealthDocument)]="wealthDocument"> </app-total-assets>
+          </nb-tab>
+          <nb-tab tabTitle="Stocks">
+            <app-stock-list
+              *ngIf="wealthDocument"
+              [(wealthDocument)]="wealthDocument"
+              (wealthChange)="onWealthChange($event)"
+            >
+            </app-stock-list>
+          </nb-tab>
+          <nb-tab tabTitle="Fixed Income">
+            <app-fixedincome-list
+              *ngIf="wealthDocument"
+              [(wealthDocument)]="wealthDocument"
+              (wealthChange)="onWealthChange($event)"
+            >
+            </app-fixedincome-list>
+          </nb-tab>
+          <nb-tab tabTitle="Mutual Funds">
+            <app-mf-list
+              *ngIf="wealthDocument"
+              [(wealthDocument)]="wealthDocument"
+              (wealthChange)="onWealthChange($event)"
+            >
+            </app-mf-list>
+          </nb-tab>
+        </nb-tabset>
+      </nb-card-body>
+    </nb-card>
+  </div>
+</router-outlet>

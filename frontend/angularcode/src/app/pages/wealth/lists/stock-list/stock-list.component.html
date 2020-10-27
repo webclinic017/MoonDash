@@ -1,0 +1,27 @@
+<table style="width: 100%;">
+  <tr>
+    <th><strong> No. </strong></th>
+    <th><strong>Symbol </strong></th>
+    <th><strong>Buy Price </strong></th>
+    <th><strong>Buy Quantity </strong></th>
+    <th><strong>Investment Value </strong></th>
+    <th><strong>Current Price </strong></th>
+    <th><strong>Current Value </strong></th>
+    <th></th>
+  </tr>
+
+  <tr *ngFor="let item of Info; index as i">
+    <td>{{ i + 1 }}</td>
+    <td>{{ item.stockSymbol }}</td>
+    <td>{{ item.price }}</td>
+    <td>{{ item.quantity }}</td>
+    <td>{{ item.investmentValue }}</td>
+    <td>{{ item.currentPrice }}</td>
+    <td>{{ item.currentValue }}</td>
+    <td>
+      <button nbButton (click)="deleteStock(i)" ghost>
+        <mat-icon style="color: #151a30;">highlight_off</mat-icon>
+      </button>
+    </td>
+  </tr>
+</table>

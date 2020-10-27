@@ -1,0 +1,28 @@
+<nb-layout windowMode="false">
+  <nb-layout-column>
+    <nb-card class="PortfolioValueCard">
+      <nb-card-header>
+        Current Portfolio Value
+      </nb-card-header>
+      <nb-card-body> ₹. {{ Info.currentValue }} </nb-card-body>
+    </nb-card>
+    <nb-card class="PortfolioValueCard">
+      <nb-card-header>
+        Gain / Loss
+      </nb-card-header>
+      <nb-card-body class="gainCard">
+        <div>₹. {{ Gain.amount }}</div>
+        <div style="margin-right: 40px;">{{ Gain.percent }} %</div>
+      </nb-card-body>
+    </nb-card>
+  </nb-layout-column>
+
+  <nb-layout-column>
+    <nb-card class="PortfolioValueCard">
+      <nb-card-header>
+        Invested Value
+      </nb-card-header>
+      <nb-card-body> ₹. {{ Info.investedValue }} </nb-card-body>
+    </nb-card>
+  </nb-layout-column>
+</nb-layout>

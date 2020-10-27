@@ -1,0 +1,37 @@
+<table style="width: 100%;">
+  <tr>
+    <th><strong>S/R</strong></th>
+    <th><strong>Trend</strong></th>
+    <th><strong>Signal</strong></th>
+    <th><strong>Call OI </strong></th>
+    <th><strong>Call Change in OI</strong></th>
+    <th><strong>Call LTP</strong></th>
+    <th><strong>Call Net Change</strong></th>
+    <th><strong>Strike Price</strong></th>
+    <th><strong>Put OI </strong></th>
+    <th><strong>Put Change in OI</strong></th>
+    <th><strong>Put LTP</strong></th>
+    <th><strong>Put Net Change</strong></th>
+    <th><strong>Signal</strong></th>
+    <th><strong>Trend</strong></th>
+
+    <th></th>
+  </tr>
+
+  <tr *ngFor="let item of Info; index as i">
+    <td>{{ item.level }}</td>
+    <td>{{ item.CE.trend }}</td>
+    <td>{{ item.CE.signal }}</td>
+    <td>{{ item.CE.openInterest }}</td>
+    <td>{{ item.CE.changeinOpenInterest }}</td>
+    <td>{{ item.CE.lastPrice }}</td>
+    <td>{{ item.CE.change | number }}</td>
+    <td>{{ item.strikePrice }}</td>
+    <td>{{ item.PE.openInterest }}</td>
+    <td>{{ item.PE.changeinOpenInterest }}</td>
+    <td>{{ item.PE.lastPrice }}</td>
+    <td>{{ item.PE.change | number }}</td>
+    <td>{{ item.PE.signal }}</td>
+    <td>{{ item.PE.trend }}</td>
+  </tr>
+</table>

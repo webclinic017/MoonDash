@@ -1,0 +1,7 @@
+.form-group {
+  margin-bottom: 10px;
+}
+.item {
+  display: flex;
+  justify-content: space-between;
+}
