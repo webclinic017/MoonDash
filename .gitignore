@@ -465,6 +465,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 /backend/nodeapplication/build
+/backend/js
 ./backend/nodeapplication/configs/MongoDBConfig.json
 ./backend/nodeapplication/configs/APIKeys.json
 backend/nodeapplication/configs/Keys.txt

@@ -29,9 +29,9 @@ export class NSEQuotesRouteController extends AbstractServiceRouteController {
 
     let cookieArray = resp.headers["set-cookie"];
     let cookie = "";
-    cookieArray.forEach((cookieStr: string) => {
-      cookie = ";" + cookieStr;
-    });
+    for (let i = 0; i < cookieArray.length; i++) {
+      cookie = cookie + ";" + cookieArray[i];
+    }
     cookie = cookie.substr(1);
 
     NSEQuotesRouteController.cookie = cookie;
@@ -42,8 +42,9 @@ export class NSEQuotesRouteController extends AbstractServiceRouteController {
     let input: INSEQuotesServiceInput = req.query;
     try {
       let response = await NSEQuotes.executeService(input);
-      resp.status(StatusConstants.code200).json(response);
+      resp.status(StatusConstants.code200).send(response);
     } catch (error) {
+      console.error(error);
       resp.status(400).send("Error");
     }
   }

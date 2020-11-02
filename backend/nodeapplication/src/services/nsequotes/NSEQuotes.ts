@@ -12,15 +12,17 @@ export class NSEQuotes {
   ): Promise<any> {
     let link = this.getLink(input.symbol);
     try {
-      // FIXME: Cookie in headers, not working use formdata
+      let cookie = NSEQuotesRouteController.cookie;
 
-      let resp = await Axios.get(link, {
+      let resp = await Axios({
+        method: "get",
+        url: link,
         headers: {
-          Cookie: NSEQuotesRouteController.cookie,
+          Cookie: cookie,
         },
       });
-      console.log(resp);
-      return Promise.resolve(resp);
+      console.log(resp.data);
+      return Promise.resolve(resp.data);
     } catch (error) {
       console.log(error);
       throw Error;
@@ -38,7 +40,13 @@ export class NSEQuotes {
     input: INSEQuotesServiceInput
   ): Promise<any> {
     let link = this.optionChainLink(input.symbol);
-    let resp = (await Axios.get(link)).data;
+    let resp = (
+      await Axios.get(link, {
+        headers: {
+          Cookie: NSEQuotesRouteController.cookie,
+        },
+      })
+    ).data;
 
     let lvl1Cond = await this.conditionOptionChainData(resp);
     // console.log(resp);
@@ -58,3 +66,11 @@ export class NSEQuotes {
     return allData;
   }
 }
+
+/*
+    const FormData = require('form-data');
+    let bodyFormData = new FormData();
+    let headers = bodyFormData.getHeaders()
+    let cookie = NSEQuotesRouteController.cookie
+    headers ["Cookie"] = cookie
+*/
