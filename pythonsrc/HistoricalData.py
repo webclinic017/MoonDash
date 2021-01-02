@@ -19,8 +19,12 @@ class HistoricalData:
         """ Get Historical Data from Bitmex
 
         Args:
-            symbol (string): Symbol String
-            data_count (number): Number of Data Points to Get
+            [symbol] (string): Symbol String,
+            
+            For Composite Symbols in Bitmex 
+            - Read about https://www.bitmex.com/app/index/.BBCHXBT
+            
+            [data_count] (number): Number of Data Points to Get
             bin_size (string): Interval
         """
         
