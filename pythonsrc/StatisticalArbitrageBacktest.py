@@ -25,7 +25,31 @@ class StatisticalArbitrageBacktest:
                 symbol2,
                 ticker_main_df):
         
+        self.starting_capital = starting_capital 
+        self.algo_stop_balance = algo_stop_balance 
+        self.sell_periods = sell_periods 
+        self.leverage = leverage 
+        self.transaction_fee = transaction_fee 
+        self.z_score_buy_threshold = z_score_buy_threshold 
+        self.z_score_short_threshold = z_score_short_threshold 
+        self.symbol1 = symbol1 
+        self.symbol2 = symbol2 
+        self.ticker_main_df = ticker_main_df
+        
+        
         self.current_balance = starting_capital
+        
+        self.balance_alloc_symbol1 = 0
+        self.balance_alloc_symbol2 = 0
+        
+        self.order_transaction_fee_symbol1 = 0
+        self.order_transaction_fee_symbol2 = 0
+        
+        self.squareoff_transaction_fee_symbol1 = 0
+        self.squareoff_transaction_fee_symbol2 = 0
+        
+        self.quantity_symbol1 = 0
+        self.quantity_symbol2 = 0
         self.balance_list = []
         
         self.order_status = OrderStatus.NO_ORDER
@@ -33,6 +57,7 @@ class StatisticalArbitrageBacktest:
         
         self.current_price_symbol1 =0
         self.current_price_symbol2 =0
+        
         self.z_score = 0
         
         self.price_symbol1 = 0
@@ -48,12 +73,14 @@ class StatisticalArbitrageBacktest:
         
         self.total_pnl=0
         self.total_returns=0
+        
         self.pnl_symbol1=0
         self.returns_symbol1=0
         self.pnl_symbol2=0
         self.returns_symbol2=0
         
-        self.order_details_cols = ['count',
+        self.order_details_cols = [
+        'count',
         'order_type',
         'balance_prior',
         'balance_post',
@@ -140,23 +167,106 @@ class StatisticalArbitrageBacktest:
         else:
             return False
             
+    def orderTransactionFee(self,capital):
+        return capital * self.transaction_fee
+        
+    def squareOffTransactionFee(self,capital):
+        return capital * self.transaction_fee
+        
+    def getQuantity(self,capital,price):
+        transactionFee = self.orderTransactionFee(capital)
+        return ((capital - transactionFee)/price)
+    
+    def getPNL(self,buyPrice,sellPrice,quantity,capital):
+        transactionFee = self.squareOffTransactionFee(capital)
+        quantity = self.getQuantity(capital,buyPrice)
+
+        totalSP = sellPrice * quantity
+        
+        pnl = (capital - totalSP) - transactionFee
+        return pnl
+        
     def orderSquareOffCalculations(self):
+        self.squareOff_price_symbol1 = self.current_price_symbol1
+        self.squareOff_price_symbol2 = self.current_price_symbol2
+        
+        self.balance_alloc_symbol1 = 0.5  * self.leverage * self.current_balance
+        self.balance_alloc_symbol2 = 0.5  * self.leverage * self.current_balance
+        
+        self.order_transaction_fee_symbol1 = self.orderTransactionFee(self.balance_alloc_symbol1)
+        self.order_transaction_fee_symbol2 = self.orderTransactionFee(self.balance_alloc_symbol2)
         
         return
             
     def longOrderSquareOff(self):
+        self.pnl_symbol1 = self.getPNL(self.price_symbol1,
+                                       self.squareOff_price_symbol1,
+                                       self.quantity_symbol1,
+                                       self.balance_alloc_symbol1
+                                       )
+        
+        self.pnl_symbol2 = self.getPNL(self.squareOff_price_symbol2,
+                                       self.price_symbol2,
+                                       self.quantity_symbol2,
+                                       self.balance_alloc_symbol2
+                                       )
         
         return
         
     def shortOrderSquareOff(self):
+        self.pnl_symbol1 = self.getPNL(self.squareOff_price_symbol1,
+                                       self.price_symbol1,
+                                       self.quantity_symbol1,
+                                       self.balance_alloc_symbol1
+                                       )
         
+        self.pnl_symbol2 = self.getPNL(self.price_symbol2,
+                                       self.squareOff_price_symbol2,
+                                       self.quantity_symbol2,
+                                       self.balance_alloc_symbol2
+                                       )
         return
             
-    def squareOffStrategy(self,index):
+    def squareOff(self,index):
+        self.orderSquareOffCalculations()
         if(self.order_status == OrderStatus.LONG):
             self.longOrderSquareOff()
         elif(self.order_status == OrderStatus.SHORT):
             self.shortOrderSquareOff()
+            
+        self.total_pnl = self.pnl_symbol1 + self.pnl_symbol2
+        resultant_balance = self.current_balance +  self.total_pnl
+        
+        
+        self.order_details = self.order_details.append(
+            pd.DataFrame(
+                data=[[
+                    self.trade_count,
+                    self.order_status,
+                    self.current_balance,
+                    self.resultant_balance,
+                    self.total_pnl,
+                    0,
+                    self.order_id_price_symbol1,
+                    self.price_symbol1,
+                    self.balance_alloc_symbol1,
+                    self.quantity_symbol1,
+                    self.squareOff_price_symbol1,
+                    self.squareOff_bal_symbol1,
+                    self.pnl_symbol1,
+                    0,
+                    self.order_id_price_symbol2,
+                    self.price_symbol2,
+                    self.balance_alloc_symbol2,
+                    self.quantity_symbol2,
+                    self.squareOff_price_symbol2,
+                    self.squareOff_bal_symbol2,
+                    self.pnl_symbol2,
+                    0
+                    ]],
+                columns=order_details_cols))
+        current_balance = resultant_balance
+        order_status = OrderStatus.NO_ORDER
             
             
     def runBacktest(self):
@@ -170,7 +280,7 @@ class StatisticalArbitrageBacktest:
                 if(self.shortOrderCondition):
                     self.shortOrderInit(index)
                 if(self.squareOffCondition):
-                    self.squareOffStrategy(index)
+                    self.squareOff(index)
                     
                     
                 
