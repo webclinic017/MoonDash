@@ -99,14 +99,14 @@ class StatisticalArbitrageBacktest:
         'balance_alloc_symbol2',
         'quantity_symbol2',
         'squareOff_price_symbol2',
-        'squareOff_bal_symbol2'
+        'squareOff_bal_symbol2',
         'pnl_symbol2',
-        'returns_symbol2',
+        'returns_symbol2'
         ]
-        self.order_details = pd.DataFrame(data=[],columns=order_details_cols)
+        self.order_details = pd.DataFrame(data=[],columns=self.order_details_cols)
         
     
-    def setCurrent(self):
+    def setCurrent(self,row):
         ## Price of 1st Asset
         self.current_price_symbol1 = row[self.symbol1 + '_Close']
         
@@ -128,7 +128,7 @@ class StatisticalArbitrageBacktest:
     def longOrderInit(self,index):
         ## Long Order Initialized
         self.order_status = OrderStatus.LONG
-        self.OrderInit(index
+        self.OrderInit(index)
                
     def shortOrderInit(self,index):
         ## Short Order Initialized
@@ -149,20 +149,20 @@ class StatisticalArbitrageBacktest:
             
     def squareOffCondition(self,index):
         
-        if(self.generalSquareOffCondition and index == self.square_off_index):
+        if(self.generalSquareOffCondition() and index == self.square_off_index):
             return True
         else:
             return False
         
         
     def longOrderCondition(self):
-        if(self.generalOpenOrderCondition() and self.z_score <= self.z_score_buy_threshold):
+        if(self.generalOpenOrderCondition() and (self.z_score <= self.z_score_buy_threshold)):
             return True
         else:
             return False
     
     def shortOrderCondition(self):
-        if(self.generalOpenOrderCondition() and self.z_score <= self.z_score_buy_threshold):
+        if(self.generalOpenOrderCondition() and (self.z_score >= self.z_score_short_threshold)):
             return True
         else:
             return False
@@ -183,7 +183,7 @@ class StatisticalArbitrageBacktest:
 
         totalSP = sellPrice * quantity
         
-        pnl = (capital - totalSP) - transactionFee
+        pnl = (totalSP - capital) - transactionFee
         return pnl
         
     def orderSquareOffCalculations(self):
@@ -244,7 +244,7 @@ class StatisticalArbitrageBacktest:
                     self.trade_count,
                     self.order_status,
                     self.current_balance,
-                    self.resultant_balance,
+                    resultant_balance,
                     self.total_pnl,
                     0,
                     self.order_id_price_symbol1,
@@ -252,7 +252,7 @@ class StatisticalArbitrageBacktest:
                     self.balance_alloc_symbol1,
                     self.quantity_symbol1,
                     self.squareOff_price_symbol1,
-                    self.squareOff_bal_symbol1,
+                    0,
                     self.pnl_symbol1,
                     0,
                     self.order_id_price_symbol2,
@@ -260,27 +260,29 @@ class StatisticalArbitrageBacktest:
                     self.balance_alloc_symbol2,
                     self.quantity_symbol2,
                     self.squareOff_price_symbol2,
-                    self.squareOff_bal_symbol2,
+                    0,
                     self.pnl_symbol2,
                     0
                     ]],
-                columns=order_details_cols))
-        current_balance = resultant_balance
-        order_status = OrderStatus.NO_ORDER
+                columns=self.order_details_cols))
+        self.current_balance = resultant_balance
+        self.balance_list.append(self.current_balance)
+        self.order_status = OrderStatus.NO_ORDER
             
             
     def runBacktest(self):
         
-        self.setCurrent()
-        
         for index,row in self.ticker_main_df.iterrows():            
+            self.setCurrent(row)
             if self.current_balance > self.algo_stop_balance:
-                if(self.longOrderCondition):
+                if(self.longOrderCondition()):
                     self.longOrderInit(index)
-                if(self.shortOrderCondition):
+                if(self.shortOrderCondition()):
                     self.shortOrderInit(index)
-                if(self.squareOffCondition):
+                if(self.squareOffCondition(index)):
                     self.squareOff(index)
+        
+        return self.current_balance,self.balance_list,self.order_details
                     
                     
                 
