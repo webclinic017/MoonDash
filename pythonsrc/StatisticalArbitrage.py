@@ -132,7 +132,7 @@ class StatisticalArbitrage:
         fig.tight_layout()
         plt.show()
     
-    def plotZScore(ticker_main_df):
+    def plotZScore(ticker_main_df,z_score_buy_threshold,z_score_short_threshold):
         fig = plt.figure()
         plt.plot(ticker_main_df['Z_Score'])
         plt.axhline(y=0,color='b')
@@ -309,11 +309,11 @@ class StatisticalArbitrage:
                                                 * (balance_alloc_symbol2/squareOff_price_symbol2))
                             
                             ## Balance after Square Off i.e Selling the bought quantity
-                            squareOff_bal_symbol1 = ((1 - transaction_fee) 
-                                                    * (squareOff_price_symbol1 * quantity_symbol1))/leverage
+                            squareOff_bal_symbol1 = (((1 - transaction_fee) 
+                                                    * (squareOff_price_symbol1 * quantity_symbol1)) - balance_alloc_symbol1)
 
-                            squareOff_bal_symbol2 = ((1 - transaction_fee) 
-                                                    * (price_symbol2 * quantity_symbol2))/leverage
+                            squareOff_bal_symbol2 = (((1 - transaction_fee) 
+                                                    * (price_symbol2 * quantity_symbol2)) - balance_alloc_symbol2)
                             
                         ##Short Square Off
                         if(order_status == OrderStatus.SHORT):
@@ -327,14 +327,15 @@ class StatisticalArbitrage:
                             
                             
                             ## Balance after Square Off i.e Selling the bought quantity
-                            squareOff_bal_symbol1 = ((1 - transaction_fee) 
-                                                    * (price_symbol1 * quantity_symbol1))/leverage
+                            squareOff_bal_symbol1 = (((1 - transaction_fee) 
+                                                    * (price_symbol1 * quantity_symbol1))- balance_alloc_symbol1)
                             
-                            squareOff_bal_symbol2 = ((1 - transaction_fee) 
-                                                    * (squareOff_price_symbol2 * quantity_symbol2))/leverage
+                            squareOff_bal_symbol2 = (((1 - transaction_fee) 
+                                                    * (squareOff_price_symbol2 * quantity_symbol2)) - balance_alloc_symbol2)
                         
                         #print('Order Squares Off!')
-                        resultant_balance = squareOff_bal_symbol1 + squareOff_bal_symbol2
+                        resultant_balance = ((balance_alloc_symbol1 + balance_alloc_symbol2) 
+                                             - (squareOff_bal_symbol1 + squareOff_bal_symbol2)) + current_balance
                         
                         order_details = order_details.append(pd.DataFrame(data=[[
                             trade_count,
