@@ -283,9 +283,3 @@ class StatisticalArbitrageBacktest:
                     self.squareOff(index)
         
         return self.current_balance,self.balance_list,self.order_details
-                    
-                    
-                
-                    
-                
-                
