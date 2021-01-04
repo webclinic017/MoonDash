@@ -6,7 +6,7 @@ import numpy as np
 import pandas_ta as ta
 
 class Backtest:
-     def __init__(self,
+    def __init__(self,
                 starting_capital,
                 algo_stop_balance,
                 leverage,
@@ -141,4 +141,18 @@ class Backtest:
         self.current_balance = resultant_balance
         self.balance_list.append(self.current_balance)
         self.order_status = OrderStatus.NO_ORDER 
+        
+    def runBacktest(self):
+        
+        for index,row in self.dataframe.iterrows():            
+            self.setCurrent(row)
+            if self.current_balance > self.algo_stop_balance:
+                if(self.strategy_class.longOrderCondition(row)):
+                    self.OrderInit(row,OrderStatus.LONG)
+                if(self.strategy_class.shortOrderCondition(row)):
+                    self.OrderInit(row,OrderStatus.LONG)
+                if(self.strategy_class.squareOffCondition(row)):
+                    self.squareOff(index)
+        
+        return self.current_balance,self.balance_list,self.order_details
     
