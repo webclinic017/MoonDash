@@ -30,9 +30,9 @@ export class WealthserviceService {
     return this.httpClient.get(routes.wealth + '/?id=' + this.username).toPromise();
   }
   saveWealthDocument(doc: IWealthSchema) {
-    // doc.assets.stocks.forEach(async (inf) => {
-    //   await this.getStockPrice(inf);
-    // });
+    doc.assets.stocks.forEach(async (inf) => {
+      await this.getStockPrice(inf);
+    });
     return this.httpClient.post(routes.saveWealth, doc).toPromise();
   }
 
@@ -49,7 +49,7 @@ export class WealthserviceService {
     return this.httpClient.get(routes.mfNAV + '?schemeCode=' + symbol);
   }
 
-  getNSEQuotes(symbol: string) {
+  getNSEQuotes(symbol: string): Promise<any> {
     return this.httpClient.get(routes.nseQuotes + '?symbol=' + symbol).toPromise();
   }
 

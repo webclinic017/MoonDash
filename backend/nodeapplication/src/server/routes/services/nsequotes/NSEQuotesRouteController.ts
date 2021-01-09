@@ -35,7 +35,6 @@ export class NSEQuotesRouteController extends AbstractServiceRouteController {
     cookie = cookie.substr(1);
 
     NSEQuotesRouteController.cookie = cookie;
-    console.log(resp);
   }
 
   public async runService(req: Request, resp: Response): Promise<any> {

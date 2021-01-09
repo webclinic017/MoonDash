@@ -19,7 +19,7 @@ export class StockListComponent implements OnInit {
   @Output() wealthChange = new EventEmitter<IWealthSchema>();
 
   Info: Array<IstocksInfo>;
-  constructor(private toastservice: ToastService) {}
+  constructor(private toastservice: ToastService, private wealthservice: WealthserviceService) {}
 
   deleteStock(i: number) {
     this.toastservice.showWealthAdditionToast();
@@ -32,5 +32,25 @@ export class StockListComponent implements OnInit {
 
   ngOnInit() {
     this.Info = this.wealthDocument.assets.stocks;
+
+    this.Info.forEach(async (val) => {
+      await this.getCurrentPrice(val);
+    });
+  }
+
+  async getCurrentPrice(inf: IstocksInfo) {
+    try {
+      await this.wealthservice
+        .getNSEQuotes(inf.stockSymbol)
+        .then((nseData) => {
+          console.log(nseData);
+        })
+        .catch((er) => {
+          console.error(er);
+        });
+    } catch (error) {}
+    // inf.currentPrice = Number(accounting.toFixed(nseData.priceInfo.lastPrice, 2));
+    // inf.currentValue = inf.currentPrice * inf.quantity;
+    // inf.currentValue = Number(accounting.toFixed(inf.currentValue, 2));
   }
 }

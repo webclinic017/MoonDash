@@ -297,7 +297,7 @@ class Backtest:
                 if(self.strategy_class.longOrderCondition(row)):
                     self.OrderInit(row,OrderStatus.LONG)
                 if(self.strategy_class.shortOrderCondition(row)):
-                    self.OrderInit(row,OrderStatus.LONG)
+                    self.OrderInit(row,OrderStatus.SHORT)
                 if(self.strategy_class.squareOffCondition(row)):
                     self.squareOff(row,index)
         
@@ -354,7 +354,7 @@ class SMAStrategy:
             condition = False
         elif(self.crossOver(ticker_row)):
             self.high_tf_row = self.dataframe_high[
-                (self.dataframe_high.timestamp < ticker_row.timestamp)
+                (self.dataframe_high.timestamp <= ticker_row.timestamp)
             ].iloc[-1]
             
             if((current_price > self.high_tf_row.EMA) 
@@ -445,8 +445,20 @@ plt.show()
 plt.plot(dataframe_low.EMA_Dev[0:len_p])
 
 
+max_loss = order_details.pnl_percentage.min()
+max_profit = order_details.pnl_percentage.max()
+
+
 plt.figure(figsize=(16,8))
+plt.axhline(0,c="black")
+plt.axhline(max_loss,c="salmon")
+plt.axhline(max_profit,c="salmon")
+plt.text(y=max_loss, x=0, s=('Max Loss : ' + str(max_loss)))
+plt.text(y=max_profit, x=0, s=('Max Profit : ' + str(max_profit)))
 plt.plot(order_details.pnl_percentage,marker='x',markeredgecolor='r')
+
+
+
 
 
 order_details[(order_details.pnl_percentage < 0)].shape[0]
