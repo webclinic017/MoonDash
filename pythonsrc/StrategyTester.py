@@ -34,6 +34,11 @@ class Backtest:
         self.quantity = 0
         self.balance_list = []
         
+        self.open_time = None
+        self.close_time = None
+        
+        self.close_reason = ''
+        
         
         self.current_price =0
         
@@ -54,15 +59,17 @@ class Backtest:
         
         self.order_details_cols = [
         'count',
+        'open_time',
+        'close_time',
         'order_type',
         'balance_prior',
         'balance_post',
         'total_pnl',
-        'total_returns',
         'price_symbol',
         'quantity_symbol',
         'squareOff_price_symbol',
-        'order_pnl'
+        'order_pnl',
+        'pnl_percentage'
         ]
         self.order_details = pd.DataFrame(data=[],columns=self.order_details_cols)
         
@@ -72,16 +79,15 @@ class Backtest:
     
     def OrderInit(self,row,order_status):
         ## Increment Trade Count 
+        
         self.trade_count = self.trade_count + 1
         self.order_status = order_status
+        self.open_time = row.timestamp
         
         if(self.order_status == OrderStatus.LONG):
             self.buy_price = self.current_price
         if(self.order_status == OrderStatus.SHORT):
             self.sell_price = self.current_price
-        
-        ## Strategy Stop Loss Calculation
-        self.strategy_class.set_stoploss(row,self.order_status)
         
     def orderTransactionFee(self,capital):
         self.order_transaction_fee = capital * self.transaction_fee
@@ -100,7 +106,7 @@ class Backtest:
         transactionFee = self.squareOffTransactionFee(capital)
         self.quantity = self.getQuantity(capital,buyPrice)
 
-        totalSP = sellPrice * quantity
+        totalSP = sellPrice * self.quantity
         
         self.pnl = (totalSP - capital) - transactionFee
         return self.pnl
@@ -116,32 +122,59 @@ class Backtest:
         self.pnl = self.getPNL(self.buy_price,self.sell_price,self.balance_alloc)
         return       
     
-    def squareOff(self,index):
+    def squareOff(self,row,index):
         self.orderSquareOffCalculations()
-
+        self.close_time = row.timestamp
         self.total_pnl = self.total_pnl + self.pnl
         resultant_balance = self.current_balance +  self.pnl
-        
+        pnl_percentage = round((self.pnl * 100)/self.current_balance)
         
         self.order_details = self.order_details.append(
             pd.DataFrame(
                 data=[[
-                    self.trade_count,                                   
+                    self.trade_count,
+                    self.open_time,
+                    self.close_time,
                     self.order_status,                                  
                     self.current_balance,                                   
                     resultant_balance,                                  
-                    self.total_pnl,                                 
-                    0,                                  
+                    self.total_pnl,                                                               
                     self.buy_price,
                     self.quantity,
                     self.sell_price,
-                    self.pnl                                       
+                    self.pnl,
+                    pnl_percentage
                     ]],
-                columns=self.order_details_cols))
+                columns=self.order_details_cols),ignore_index=True)
         self.current_balance = resultant_balance
         self.balance_list.append(self.current_balance)
+        self.strategy_class.order_status = OrderStatus.NO_ORDER
         self.order_status = OrderStatus.NO_ORDER 
+       
+       
+    def summarize(self):
         
+        cap_returns = ((self.current_balance - self.starting_capital) *100/self.starting_capital)
+        
+        max_loss = self.order_details.pnl_percentage.min()
+        max_profit = self.order_details.pnl_percentage.max()
+        
+        total_trades = self.order_details.shape[0]
+        
+        n_loss_trades = self.order_details[(self.order_details.pnl_percentage < 0)].shape[0]
+        n_profit_trades = self.order_details[(self.order_details.pnl_percentage > 0)].shape[0]
+        
+        profit_trades_percentage = round((n_profit_trades * 100)/total_trades)
+        
+        summary  =  pd.DataFrame(data={
+            "cap_returns" : cap_returns,
+            "max_loss" : max_loss,
+            "max_profit" : max_profit,
+            "total_trades":total_trades,
+            "n_loss_trades":n_loss_trades,
+            "n_profit_trades":n_profit_trades,
+            "profit_trades_percentage":profit_trades_percentage,
+        })
     def runBacktest(self):
         
         for index,row in self.dataframe.iterrows():            
@@ -150,9 +183,10 @@ class Backtest:
                 if(self.strategy_class.longOrderCondition(row)):
                     self.OrderInit(row,OrderStatus.LONG)
                 if(self.strategy_class.shortOrderCondition(row)):
-                    self.OrderInit(row,OrderStatus.LONG)
+                    self.OrderInit(row,OrderStatus.SHORT)
                 if(self.strategy_class.squareOffCondition(row)):
-                    self.squareOff(index)
+                    self.squareOff(row,index)
+        
+        
         
         return self.current_balance,self.balance_list,self.order_details
-    

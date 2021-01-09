@@ -140,6 +140,7 @@ dataframe_low
 dataframe_high
 
 
+
 class Backtest:
     def __init__(self,
                 starting_capital,
@@ -196,6 +197,7 @@ class Backtest:
         'count',
         'open_time',
         'close_time',
+        'trade_duration',
         'order_type',
         'balance_prior',
         'balance_post',
@@ -218,14 +220,11 @@ class Backtest:
         self.trade_count = self.trade_count + 1
         self.order_status = order_status
         self.open_time = row.timestamp
+        
         if(self.order_status == OrderStatus.LONG):
             self.buy_price = self.current_price
         if(self.order_status == OrderStatus.SHORT):
             self.sell_price = self.current_price
-        
-        #print(' Trade Init '+ str(self.current_price))
-        ## Strategy Stop Loss Calculation
-        #self.strategy_class.set_squareOffCondition(row,self.order_status)
         
     def orderTransactionFee(self,capital):
         self.order_transaction_fee = capital * self.transaction_fee
@@ -267,12 +266,15 @@ class Backtest:
         resultant_balance = self.current_balance +  self.pnl
         pnl_percentage = round((self.pnl * 100)/self.current_balance)
         
+        trade_duration = pd.to_datetime(self.close_time) - pd.to_datetime(self.open_time)
+        
         self.order_details = self.order_details.append(
             pd.DataFrame(
                 data=[[
                     self.trade_count,
                     self.open_time,
                     self.close_time,
+                    trade_duration,
                     self.order_status,                                  
                     self.current_balance,                                   
                     resultant_balance,                                  
@@ -288,7 +290,57 @@ class Backtest:
         self.balance_list.append(self.current_balance)
         self.strategy_class.order_status = OrderStatus.NO_ORDER
         self.order_status = OrderStatus.NO_ORDER 
+       
+       
+    def summarize(self):
         
+        tested_from = self.dataframe.iloc[0].timestamp
+        tested_to = self.dataframe.iloc[-1].timestamp
+        
+        test_duration = pd.to_datetime(tested_to) - pd.to_datetime(tested_from)
+        
+        average_trade_duration = (self.order_details.trade_duration).mean()
+        
+        cap_returns = ((self.current_balance - self.starting_capital) *100/self.starting_capital)
+        
+        max_loss = self.order_details.pnl_percentage.min()
+        max_profit = self.order_details.pnl_percentage.max()
+        
+        total_trades = self.order_details.shape[0]
+        
+    
+        loss_trades = self.order_details[(self.order_details.pnl_percentage < 0)]
+        profit_trades = self.order_details[(self.order_details.pnl_percentage > 0)]
+        
+        average_pnl_trade = self.order_details.pnl_percentage.mean()
+        average_pnl_loss_trades = loss_trades.pnl_percentage.mean()
+        average_pnl_profit_trades = profit_trades.pnl_percentage.mean()
+        
+        n_loss_trades = loss_trades.shape[0]
+        n_profit_trades = profit_trades.shape[0]
+        
+        profit_trades_percentage = round((n_profit_trades * 100)/total_trades)
+        
+        
+        
+        summary  =  pd.DataFrame(data={
+            "tested_from" :tested_from,
+            "tested_to":tested_to,
+            "test_duration":test_duration,
+            "average_trade_duration":average_trade_duration,
+            "cap_returns" : cap_returns,
+            "max_loss" : max_loss,
+            "max_profit" : max_profit,
+            "total_trades":total_trades,
+            "n_loss_trades":n_loss_trades,
+            "n_profit_trades":n_profit_trades,
+            "profit_trades_percentage":profit_trades_percentage,
+            "average_pnl_trade":average_pnl_trade,
+            "average_pnl_loss_trades":average_pnl_loss_trades,
+            "average_pnl_profit_trades":average_pnl_profit_trades
+        },index=[0])
+        
+        return summary
     def runBacktest(self):
         
         for index,row in self.dataframe.iterrows():            
@@ -301,10 +353,11 @@ class Backtest:
                 if(self.strategy_class.squareOffCondition(row)):
                     self.squareOff(row,index)
         
+        summary = self.summarize()
+        print(summary.iloc[0])
+        
         return self.current_balance,self.balance_list,self.order_details
 
-
-dataframe_high[(dataframe_high.timestamp < dataframe_low.loc[50000].timestamp)].iloc[-1]
 
 
 class SMAStrategy:
@@ -404,7 +457,6 @@ class SMAStrategy:
         
 
 
-
 sma_strategy = SMAStrategy(dataframe_high,dataframe_low)
 
 back = Backtest(
@@ -431,6 +483,9 @@ cap_returns = ((current_balance -10000) *100/10000)
 cap_returns
 
 
+order_details.iloc[0].close_time
+
+
 len_p = 1000
 fig = plt.figure(figsize=(16,8))
 # plt.plot(dataframe_low.SMA_Low[0:len_p])
@@ -451,11 +506,12 @@ max_profit = order_details.pnl_percentage.max()
 
 plt.figure(figsize=(16,8))
 plt.axhline(0,c="black")
-plt.axhline(max_loss,c="salmon")
-plt.axhline(max_profit,c="salmon")
-plt.text(y=max_loss, x=0, s=('Max Loss : ' + str(max_loss)))
-plt.text(y=max_profit, x=0, s=('Max Profit : ' + str(max_profit)))
-plt.plot(order_details.pnl_percentage,marker='x',markeredgecolor='r')
+# plt.axhline(max_loss,c="salmon")
+# plt.axhline(max_profit,c="salmon")
+# plt.text(y=max_loss, x=0, s=('Max Loss : ' + str(max_loss)))
+# plt.text(y=max_profit, x=0, s=('Max Profit : ' + str(max_profit)))
+plt.plot(order_details.pnl_percentage)
+plt.stem(order_details.pnl_percentage,use_line_collection=True)
 
 
 
