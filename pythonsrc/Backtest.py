@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import pandas_ta as ta
 
+
 class Backtest:
     def __init__(self,
                 starting_capital,
@@ -61,6 +62,7 @@ class Backtest:
         'count',
         'open_time',
         'close_time',
+        'trade_duration',
         'order_type',
         'balance_prior',
         'balance_post',
@@ -129,12 +131,15 @@ class Backtest:
         resultant_balance = self.current_balance +  self.pnl
         pnl_percentage = round((self.pnl * 100)/self.current_balance)
         
+        trade_duration = pd.to_datetime(self.close_time) - pd.to_datetime(self.open_time)
+        
         self.order_details = self.order_details.append(
             pd.DataFrame(
                 data=[[
                     self.trade_count,
                     self.open_time,
                     self.close_time,
+                    trade_duration,
                     self.order_status,                                  
                     self.current_balance,                                   
                     resultant_balance,                                  
@@ -154,6 +159,13 @@ class Backtest:
        
     def summarize(self):
         
+        tested_from = self.dataframe.iloc[0].timestamp
+        tested_to = self.dataframe.iloc[-1].timestamp
+        
+        test_duration = pd.to_datetime(tested_to) - pd.to_datetime(tested_from)
+        
+        average_trade_duration = (self.order_details.trade_duration).mean()
+        
         cap_returns = ((self.current_balance - self.starting_capital) *100/self.starting_capital)
         
         max_loss = self.order_details.pnl_percentage.min()
@@ -161,12 +173,26 @@ class Backtest:
         
         total_trades = self.order_details.shape[0]
         
-        n_loss_trades = self.order_details[(self.order_details.pnl_percentage < 0)].shape[0]
-        n_profit_trades = self.order_details[(self.order_details.pnl_percentage > 0)].shape[0]
+    
+        loss_trades = self.order_details[(self.order_details.pnl_percentage < 0)]
+        profit_trades = self.order_details[(self.order_details.pnl_percentage > 0)]
+        
+        average_pnl_trade = self.order_details.pnl_percentage.mean()
+        average_pnl_loss_trades = loss_trades.pnl_percentage.mean()
+        average_pnl_profit_trades = profit_trades.pnl_percentage.mean()
+        
+        n_loss_trades = loss_trades.shape[0]
+        n_profit_trades = profit_trades.shape[0]
         
         profit_trades_percentage = round((n_profit_trades * 100)/total_trades)
         
+        
+        
         summary  =  pd.DataFrame(data={
+            "tested_from" :tested_from,
+            "tested_to":tested_to,
+            "test_duration":test_duration,
+            "average_trade_duration":average_trade_duration,
             "cap_returns" : cap_returns,
             "max_loss" : max_loss,
             "max_profit" : max_profit,
@@ -174,7 +200,12 @@ class Backtest:
             "n_loss_trades":n_loss_trades,
             "n_profit_trades":n_profit_trades,
             "profit_trades_percentage":profit_trades_percentage,
-        })
+            "average_pnl_trade":average_pnl_trade,
+            "average_pnl_loss_trades":average_pnl_loss_trades,
+            "average_pnl_profit_trades":average_pnl_profit_trades
+        },index=[0])
+        
+        return summary
     def runBacktest(self):
         
         for index,row in self.dataframe.iterrows():            
@@ -187,6 +218,7 @@ class Backtest:
                 if(self.strategy_class.squareOffCondition(row)):
                     self.squareOff(row,index)
         
-        
+        summary = self.summarize()
+        print(summary.iloc[0])
         
         return self.current_balance,self.balance_list,self.order_details
