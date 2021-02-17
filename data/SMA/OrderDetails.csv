@@ -1,0 +1,2 @@
+count,open_time,close_time,trade_duration,order_type,balance_prior,balance_post,total_pnl,price_symbol,quantity_symbol,squareOff_price_symbol,order_pnl,pnl_percentage
+1,2020-01-08 05:00:00,2020-01-08 13:15:00,0 days 08:15:00,OrderStatus.LONG,10000,9474.605355149597,-525.394644850403,8367.46,3.5826284200940313,8233.37,-525.394644850403,-5

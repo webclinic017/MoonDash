@@ -1,0 +1,7 @@
+{
+  "python.pythonPath": "C:\\Python37\\python.exe",
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true,
+  "python.linting.pydocstyleEnabled": false,
+  "python.linting.pylintArgs": ["--generate-members"]
+}
