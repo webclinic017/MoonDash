@@ -1,7 +1,7 @@
 import backtrader as bt
 import backtrader.feeds as btfeeds
 from configs.config import inital_cash,csv_path_higherframe,csv_path_lowerframe
-
+from core.strategies.sma.sma_crossover import SmaCross
 import pandas as pd
 
 class Backtest:
@@ -14,6 +14,8 @@ class Backtest:
         print('Starting Portfolio Value: %.2f' % self.cerebro.broker.getvalue())
 
         self.load_data()
+        
+        self.cerebro.addstrategy(SmaCross)
         
         self.cerebro.run()
         print('Final Portfolio Value: %.2f' % self.cerebro.broker.getvalue())
