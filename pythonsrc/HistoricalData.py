@@ -17,7 +17,7 @@ class HistoricalData:
     """ A Class for getting Historical Data for different exchanges
     """
     
-    def getHistoricalData(exchange,symbol,data_count=1000,interval='5m',start_str='3 months ago UTC'):
+    def getHistoricalData(exchange,symbol,data_count=1000,interval='5m',start_str='3 months ago UTC',end_str=None):
         """ Get Historical Data from Bitmex
 
         Args:
@@ -52,7 +52,7 @@ class HistoricalData:
         
         elif(exchange == 'BINANCE'):
             client = Connections.getBinanceConnection()
-            klines = client.get_historical_klines(symbol,interval, start_str)
+            klines = client.get_historical_klines(symbol,interval, start_str,end_str)
             
             past_dataframe_symbol = pd.DataFrame(data=klines,columns=[
                 'timestamp',

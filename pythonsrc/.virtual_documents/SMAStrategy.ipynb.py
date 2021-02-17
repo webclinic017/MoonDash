@@ -92,9 +92,18 @@ dataframe_low['EMA_Dev'] = dataframe_low.EMA.rolling(22).std()
 
 dataframe_low = dataframe_low.dropna().reset_index(drop=True)
 
-
+dataframe_low['SMA_Crossover'] = ta.cross(dataframe_low.SMA_Low,dataframe_low.SMA_High).astype(bool)
+dataframe_low['SMA_Crossunder'] = ta.cross(dataframe_low.SMA_High,dataframe_low.SMA_Low).astype(bool)
 
 dataframe_low
+
+
+plt.plot(dataframe_low.close)
+plt.plot(dataframe_low.SMA_Crossover)
+plt.axvline(dataframe_low.SMA_Crossover[(dataframe_low.SMA_Crossover==True)].index.to_numpy(),c='salmon',alpha=0.5)
+
+
+
 
 
 dataframe_high['SMA_Low'] = ta.sma(dataframe_high.close,length=lower_sma_interval)
@@ -348,10 +357,13 @@ class Backtest:
             if self.current_balance > self.algo_stop_balance:
                 if(self.strategy_class.longOrderCondition(row)):
                     self.OrderInit(row,OrderStatus.LONG)
-                if(self.strategy_class.shortOrderCondition(row)):
+                elif(self.strategy_class.shortOrderCondition(row)):
                     self.OrderInit(row,OrderStatus.SHORT)
-                if(self.strategy_class.squareOffCondition(row)):
+                elif(self.strategy_class.squareOffCondition(row)):
                     self.squareOff(row,index)
+                    break;
+                
+                
         
         summary = self.summarize()
         print(summary.iloc[0])
@@ -432,9 +444,11 @@ class SMAStrategy:
             condition = True
         elif(self.crossunder == 0):
             if(self.crossUnder(ticker_row)):
+                print("SMA CrossUnder Detected " + ticker_row.timestamp)
                 self.set_squareOffCondition(ticker_row)
         elif(self.crossover == 0):
             if(self.crossOver(ticker_row)):
+                print("MACD Crossover Detected" + ticker_row.timestamp)
                 self.set_squareOffCondition(ticker_row)
         
         return condition
@@ -479,29 +493,25 @@ order_details.to_csv('./data/SMA/OrderDetails.csv',index=False)
 # balance_list
 
 
-cap_returns = ((current_balance -10000) *100/10000)
-cap_returns
+df  =dataframe_low[(dataframe_low.timestamp >= '2020-01-08 05:00:00') & (dataframe_low.timestamp<='2020-01-08 13:15:00' )]
+
+plt.subplots(3)
+
+plt.subplot(311)
+plt.plot(df.close)
+
+plt.subplot(312)
+plt.plot(df.SMA_Low)
+plt.plot(df.SMA_High)
 
 
-order_details.iloc[0].close_time
+plt.subplot(313)
+plt.plot(df.timestamp,df.MACD)
+plt.plot(df.timestamp,df.MACD_Signal)
 
 
-len_p = 1000
-fig = plt.figure(figsize=(16,8))
-# plt.plot(dataframe_low.SMA_Low[0:len_p])
-# plt.plot(dataframe_low.SMA_High[0:len_p])
-# plt.plot(dataframe_low.EMA[0:len_p])
 
-plt.plot(dataframe_low.MACD[0:len_p])
-plt.plot(dataframe_low.MACD_Signal[0:len_p])
-plt.show()
-
-
-plt.plot(dataframe_low.EMA_Dev[0:len_p])
-
-
-max_loss = order_details.pnl_percentage.min()
-max_profit = order_details.pnl_percentage.max()
+order_details
 
 
 plt.figure(figsize=(16,8))
@@ -514,41 +524,14 @@ plt.plot(order_details.pnl_percentage)
 plt.stem(order_details.pnl_percentage,use_line_collection=True)
 
 
+dataframe_low.iloc[13].SMA_High,dataframe_low.iloc[13].SMA_Low
 
 
-
-order_details[(order_details.pnl_percentage < 0)].shape[0]
-
-
-order_details[(order_details.pnl_percentage > 0)].shape[0]
+cro = ta.cross(dataframe_low.iloc[0:30].SMA_Low,dataframe_low.iloc[0:30].SMA_High)
+cro
 
 
-df = dataframe_low
-df['timestamp'] = pd.to_datetime(df.timestamp)
-df  = df.set_index('timestamp')
-
-df
-# plt.figure(figsize = (16,8))
-# plt.plot(dataframe_low.close)
-
-
-
-
-
-
-
-pdict = fplt.make_addplot(df[['SMA_Low','SMA_High','EMA']][0:10000])
-
-fplt.plot(
-            df[0:10000],
-            type='candle',
-            style = 'charles',
-            title='Apple, March - 2020',
-            ylabel='Price ($)',
-            addplot=pdict,
-            figratio=(18,10)
-        )
-
+help(ta.cross)
 
 
 
