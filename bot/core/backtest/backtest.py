@@ -5,6 +5,7 @@ import backtrader as bt
 # Local Imports -------------------------------------------------------------------------------------
 from core.strategies.sma.sma_crossover import SmaCross
 from core.analyzers.analyzerprinter import AnalyzerPrinter
+import pyfolio as pf
 import pandas as pd
 
 
@@ -32,13 +33,19 @@ class Backtest:
         thestrats = self.cerebro.run()
         thestrat = thestrats[0]
 
+        pyfolio_analysis = thestrat.analyzers.pyfolio.get_analysis()
         AnalyzerPrinter.print_trade_analysis(thestrat.analyzers.ta.get_analysis())
         AnalyzerPrinter.print_sqn_analysis(thestrat.analyzers.sqn.get_analysis())
         AnalyzerPrinter.print_sharpe_analysis(thestrat.analyzers.sharpe.get_analysis())
 
         print('Final Portfolio Value: %.2f' % self.cerebro.broker.getvalue())
-
-        self.cerebro.plot(style='bar')
+        returns, positions, transactions, gross_lev = \
+            pyfolio_analysis['returns'], pyfolio_analysis['positions'], \
+            pyfolio_analysis['transactions'], pyfolio_analysis['gross_lev']
+        # returns = pd.DataFrame(returns, columns=returns.keys())
+        pf.create_returns_tear_sheet(pd.DataFrame({'date': pd.Series(returns.keys()),
+                                                   'returns': pd.Series(returns.values())}).set_index('date').returns)
+        # self.cerebro.plot(style='bar')
 
     def load_data(self):
         """
@@ -58,6 +65,7 @@ class Backtest:
         self.cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name="ta")
         self.cerebro.addanalyzer(bt.analyzers.SQN, _name="sqn")
         self.cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe')
+        self.cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')
 
 
 # Class End -----------------------------------------------------------------------------------------
