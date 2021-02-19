@@ -1,5 +1,8 @@
 # General Config
-inital_cash = 10000         # Initial cash in Dollars
+inital_cash = 20000             # Initial cash in Dollars
+multiplier = 25                 # Else set 1 for no margin
+commission = 0.075/100          # 0.075 % Fees
+auto_margin = True              # Auto margin requirement
 
 # Backtest Config
 mode = "DEVELOPMENT"
