@@ -12,18 +12,17 @@ def main():
     print("--BOT UP--")
     mode = config('MODE')
     
-    if(Modes.DEVELOPMENT.value == "DEVELOPMENT"):
+    if Modes.DEVELOPMENT.value == "DEVELOPMENT":
         print("Dev Mode")
         Backtest()
         
-    elif (Modes.TRADE.value == "TRADE"):
+    elif Modes.TRADE.value == "TRADE":
         print("Trading Mode")
     
     else:
         print("Mode Invalid")
     
-    
-    
+
 if __name__ == "__main__":
     try:
         main()
