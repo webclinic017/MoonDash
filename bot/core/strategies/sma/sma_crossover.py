@@ -52,7 +52,12 @@ class SmaCross(bt.Strategy):
                 self.buycomm = order.executed.comm
                 self.opsize = order.executed.size
             else:  # Sell
-                self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
+
+                self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, PNL: %.2f' %
                          (order.executed.price,
                           order.executed.value,
-                          order.executed.comm))
+                          order.executed.comm,
+                          order.executed.pnl
+                          ))
+                self.log('Cash After Trade : %.2f $' %
+                         (self.broker.getcash()))
