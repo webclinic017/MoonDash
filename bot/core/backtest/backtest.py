@@ -43,7 +43,7 @@ class Backtest:
         # self.cerebro.plot(style='bar')
 
     def add_sizer(self):
-        self.cerebro.addsizer(bt.sizers.PercentSizerInt, percents=100, retint=False)
+        self.cerebro.addsizer(bt.sizers.PercentSizer, percents=90, retint=False)
 
     def setup_broker(self):
         """
@@ -52,14 +52,15 @@ class Backtest:
         """
         self.cerebro.broker.setcash(inital_cash)
 
-        # self.cerebro.broker.setcommission(commission=commission,
-        #                                   margin=True,
-        #                                   mult=multiplier,
-        #                                   leverage=multiplier,
-        #                                   commtype=bt.CommInfoBase.COMM_PERC,
-        #                                   automargin=1
-        #                                   )
-        self.cerebro.broker.addcommissioninfo(CommInfoFractional())
+        self.cerebro.broker.setcommission(commission=commission,
+                                          margin=True,
+                                          # mult=multiplier,
+                                          leverage=multiplier,
+                                          commtype=bt.CommInfoBase.COMM_PERC,
+                                          stocklike=False,
+                                          automargin=1
+                                          )
+        # self.cerebro.broker.addcommissioninfo(CommInfoFractional())
         print('Starting Portfolio Value: %.2f' % self.cerebro.broker.getvalue())
 
     def add_data(self):

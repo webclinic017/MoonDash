@@ -1,6 +1,6 @@
 # General Config
 inital_cash = 10000             # Initial cash in Dollars
-multiplier = 3                 # Else set 1 for no margin
+multiplier = 50                 # Else set 1 for no margin
 commission = 0.075/100          # 0.075 % Fees
 auto_margin = True              # Auto margin requirement
 

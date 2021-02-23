@@ -28,10 +28,9 @@ class SmaCross(bt.Strategy):
     def next(self):
         if not self.position:  # not in the market
             if self.crossover > 0:  # if fast crosses slow to the upside
-                self.buy()  # enter long
-
+                self.order_target_percent(target=1)
         elif self.crossover < 0:  # in the market & cross to the downside
-            self.close()  # close long position
+            self.close()
 
     def notify(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -41,23 +40,26 @@ class SmaCross(bt.Strategy):
         # Check if an order has been completed
         # Attention: broker could reject order if not enougth cash
         if order.status in [order.Completed, order.Canceled, order.Margin]:
-            if order.isbuy():
-                self.log(
-                    'BUY EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
-                    (order.executed.price,
-                     order.executed.value,
-                     order.executed.comm))
+            if order.status == order.Canceled:
+                self.log("Order Cancelled")
+            elif order.status == order.Completed or order.status == order.Margin:
+                if order.isbuy():
+                    self.log(
+                        'BUY EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f' %
+                        (order.executed.price,
+                         order.executed.value,
+                         order.executed.comm))
 
-                self.buyprice = order.executed.price
-                self.buycomm = order.executed.comm
-                self.opsize = order.executed.size
-            else:  # Sell
+                    self.buyprice = order.executed.price
+                    self.buycomm = order.executed.comm
+                    self.opsize = order.executed.size
+                elif order.issell():  # Sell
 
-                self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, PNL: %.2f' %
-                         (order.executed.price,
-                          order.executed.value,
-                          order.executed.comm,
-                          order.executed.pnl
-                          ))
-                self.log('Cash After Trade : %.2f $' %
-                         (self.broker.getcash()))
+                    self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, PNL: %.2f' %
+                             (order.executed.price,
+                              order.executed.value,
+                              order.executed.comm,
+                              order.executed.pnl
+                              ))
+                    self.log('Cash After Trade : %.2f $' %
+                             (self.broker.getcash()))
