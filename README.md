@@ -1,2 +1,3 @@
 # MoonDash
-A finance dashboard based on the Indian markets
+
+Just a repository to experiment with Finance, Technology and Crypto

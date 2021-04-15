@@ -2,8 +2,8 @@
 from configs.config import *
 # Library Imports -----------------------------------------------------------------------------------
 import backtrader as bt
-from backtrader_plotting import Bokeh
-from backtrader_plotting.schemes import Tradimo
+from backtrader_plotting import Bokeh, OptBrowser
+from backtrader_plotting.schemes import Blackly, Tradimo
 import pyfolio as pf
 import pandas as pd
 # Local Imports -------------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ class Backtest:
 
         thestrat = self.run_strategy()
         self.print_analysis(thestrat)
-        b = Bokeh(style='bar', plot_mode='single', scheme=Tradimo())
+        b = Bokeh(style='bar', plot_mode='single', scheme=Blackly())
         self.cerebro.plot(b, iplot=False)
 
     def add_sizer(self):
@@ -71,10 +71,16 @@ class Backtest:
         Loads the data from a csv file for the backtest
         :return:
         """
-        dataframe = pd.read_csv(csv_path_higherframe, parse_dates=True, index_col=0)
-        data = bt.feeds.PandasData(dataname=dataframe)
 
-        self.cerebro.adddata(data)
+        # Add lower timeframe ticker
+        dataframe_lowerframe = pd.read_csv(csv_path_lowerframe, parse_dates=True, index_col=0)
+        data_lowerframe = bt.feeds.PandasData(dataname=dataframe_lowerframe)
+        self.cerebro.adddata(data_lowerframe)
+
+        # Add higher timeframe ticker
+        dataframe_higherframe = pd.read_csv(csv_path_higherframe, parse_dates=True, index_col=0)
+        data_higherframe = bt.feeds.PandasData(dataname=dataframe_higherframe)
+        self.cerebro.adddata(data_higherframe)
 
     def add_stategy(self):
         self.cerebro.addstrategy(SmaCross)
