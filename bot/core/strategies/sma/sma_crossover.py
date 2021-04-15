@@ -28,9 +28,13 @@ class SmaCross(bt.Strategy):
     def next(self):
         if not self.position:  # not in the market
             if self.crossover > 0:  # if fast crosses slow to the upside
+                # self.buy()
                 self.order_target_percent(target=1)
         elif self.crossover < 0:  # in the market & cross to the downside
             self.close()
+        # else:
+        #     self.log('Price: %.2f, Value in Trade : %.2f $' %
+        #              (self.data.tick_high, self.broker.getvalue()))
 
     def notify(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -53,6 +57,7 @@ class SmaCross(bt.Strategy):
                     self.buyprice = order.executed.price
                     self.buycomm = order.executed.comm
                     self.opsize = order.executed.size
+
                 elif order.issell():  # Sell
 
                     self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, PNL: %.2f' %
@@ -63,3 +68,5 @@ class SmaCross(bt.Strategy):
                               ))
                     self.log('Cash After Trade : %.2f $' %
                              (self.broker.getcash()))
+                    self.log('Value After Trade : %.2f $' %
+                             (self.broker.getvalue()))

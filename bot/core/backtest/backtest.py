@@ -2,11 +2,13 @@
 from configs.config import *
 # Library Imports -----------------------------------------------------------------------------------
 import backtrader as bt
+from backtrader_plotting import Bokeh
+from backtrader_plotting.schemes import Tradimo
+import pyfolio as pf
+import pandas as pd
 # Local Imports -------------------------------------------------------------------------------------
 from core.strategies.sma.sma_crossover import SmaCross
 from core.analyzers.analyzerprinter import AnalyzerPrinter
-import pyfolio as pf
-import pandas as pd
 
 
 # Class Begin ---------------------------------------------------------------------------------------
@@ -40,7 +42,8 @@ class Backtest:
 
         thestrat = self.run_strategy()
         self.print_analysis(thestrat)
-        # self.cerebro.plot(style='bar')
+        b = Bokeh(style='bar', plot_mode='single', scheme=Tradimo())
+        self.cerebro.plot(b, iplot=False)
 
     def add_sizer(self):
         self.cerebro.addsizer(bt.sizers.PercentSizer, percents=90, retint=False)
@@ -84,7 +87,7 @@ class Backtest:
         self.cerebro.addanalyzer(bt.analyzers.TradeAnalyzer, _name="ta")
         self.cerebro.addanalyzer(bt.analyzers.SQN, _name="sqn")
         self.cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='sharpe')
-        self.cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')
+        # self.cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')
 
     def run_strategy(self):
         thestrats = self.cerebro.run()
