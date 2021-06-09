@@ -184,13 +184,15 @@ export class AssetFormComponent implements OnInit {
     console.log(this.wealthDocument);
     if (this.wealthDocument) {
       if (this.isFixedIncomeVisible) {
-        this.wealthDocument.assets.fixedIncome.push(_.cloneDeep(this.fixedIncomeInfo));
+        //The push method is a mutating method, ngOnChanges will not be run
+        //Therefore we use concat which is non-mutating
+        this.wealthDocument.assets.fixedIncome.concat([_.cloneDeep(this.fixedIncomeInfo)]);
       }
       if (this.isStocksVisible) {
-        this.wealthDocument.assets.stocks.push(_.cloneDeep(this.stocksInfo));
+        this.wealthDocument.assets.stocks.concat([_.cloneDeep(this.stocksInfo)]);
       }
       if (this.isMutualFundsVisible) {
-        this.wealthDocument.assets.mutualFunds.push(_.cloneDeep(this.mutualFundsInfo));
+        this.wealthDocument.assets.mutualFunds.concat([_.cloneDeep(this.mutualFundsInfo)]);
       }
 
       //-- Save The Document
@@ -203,6 +205,7 @@ export class AssetFormComponent implements OnInit {
         this.toastservice.showErrorWhileSaving();
       }
     } else {
+      this.toastservice.showErrorWhileSaving();
     }
   }
 

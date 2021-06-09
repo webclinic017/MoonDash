@@ -1,0 +1,94 @@
+db.Securities.aggregate([
+    {
+        $match : {
+            "securitiesList": "ACC"
+        }
+    },
+    {
+            $project : {
+            "securityType": 1
+        }
+    }
+])
+
+
+db.test.aggregate([
+    // Get just the docs that contain a shapes element where color is 'red'
+    {$match: {'shapes.color': 'red'
+        }
+    },
+    {$project: {
+        shapes: {$filter: {
+            input: '$shapes',
+            as: 'shape',
+            cond: {$eq: ['$$shape.color', 'red'
+                        ]
+                    }
+                }
+            },
+        _id: 0
+        }
+    }
+])
+
+
+db.Wealth.aggregate(
+[
+    {
+        $match : {
+            "assets.fixedIncome.investmentValue": {
+                "$gte": 40600
+            }
+        }
+    },
+    {
+        $project : {
+            "assets.fixedIncome": {
+                $filter : {
+                    input : "$assets.fixedIncome",
+                    as : "as",
+                    cond : {
+                        "$gte": [
+                            "$$as.investmentValue",
+                            46000
+                        ]
+                    }
+                }
+            },
+            "_id": 0
+        }
+    }
+])
+
+db.wealth.aggregate(
+[
+    {
+        $match :{
+            "assets.fixedIncome.investmentValue":{
+                $any :{
+                    $gte:1000
+                }
+            }
+        }
+    },
+    {
+        $filter:{
+            input : "assets.fixedIncome.investmentValue",
+            cond : {
+                $gte:1000
+            }
+        }
+    }
+])
+
+
+db.wealth.aggregate(
+[
+    {
+        $match :{
+            "assets.fixedIncome.investmentValue":{
+                $gte:1000
+            }
+        }
+    }
+])

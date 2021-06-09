@@ -12,15 +12,14 @@ export class NSEQuotes {
   ): Promise<any> {
     let link = this.getLink(input.symbol);
     try {
-      let cookie = NSEQuotesRouteController.cookie;
+      //let cookie = NSEQuotesRouteController.cookie;
 
-      let resp = await Axios({
-        method: "get",
-        url: link,
+      let resp = await Axios.get(link, {
         headers: {
-          Cookie: cookie,
+          Cookie: NSEQuotesRouteController.cookie,
         },
       });
+
       console.log(resp.data);
       return Promise.resolve(resp.data);
     } catch (error) {
@@ -40,6 +39,7 @@ export class NSEQuotes {
     input: INSEQuotesServiceInput
   ): Promise<any> {
     let link = this.optionChainLink(input.symbol);
+    console.log(NSEQuotesRouteController.cookie);
     let resp = (
       await Axios.get(link, {
         headers: {

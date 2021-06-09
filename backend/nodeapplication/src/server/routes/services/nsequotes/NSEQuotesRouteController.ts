@@ -17,7 +17,7 @@ export class NSEQuotesRouteController extends AbstractServiceRouteController {
       .bind(this);
   }
 
-  static cookie: string = "";
+  public static cookie: string = "";
 
   public async InitializeController() {
     await this.InitializeGet();

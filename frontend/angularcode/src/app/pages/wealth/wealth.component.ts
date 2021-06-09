@@ -25,7 +25,7 @@ export class WealthComponent implements OnInit {
     this.wealthservice
       .getWealthDocument()
       .then((wealthInfoDocs: Array<IWealthSchema>) => {
-        if (wealthInfoDocs) {
+        if (wealthInfoDocs && wealthInfoDocs.length != 0) {
           this.wealthDocument = wealthInfoDocs[0];
         } else {
           this.initializeBlankWealthDoc();

@@ -40,17 +40,13 @@ export class StockListComponent implements OnInit {
 
   async getCurrentPrice(inf: IstocksInfo) {
     try {
-      await this.wealthservice
-        .getNSEQuotes(inf.stockSymbol)
-        .then((nseData) => {
-          console.log(nseData);
-        })
-        .catch((er) => {
-          console.error(er);
-        });
-    } catch (error) {}
-    // inf.currentPrice = Number(accounting.toFixed(nseData.priceInfo.lastPrice, 2));
-    // inf.currentValue = inf.currentPrice * inf.quantity;
-    // inf.currentValue = Number(accounting.toFixed(inf.currentValue, 2));
+      let nseData = await this.wealthservice.getNSEQuotes(inf.stockSymbol);
+      console.log(nseData);
+      inf.currentPrice = Number(accounting.toFixed(nseData.priceInfo.lastPrice, 2));
+      inf.currentValue = inf.currentPrice * inf.quantity;
+      inf.currentValue = Number(accounting.toFixed(inf.currentValue, 2));
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

@@ -17,6 +17,13 @@ export class FixedincomeListComponent implements OnInit {
   // Wealth Document from Parent Component Wealth
   @Input() wealthDocument: IWealthSchema;
 
+  ngOnChanges() {
+    if (this.Info) {
+      this.Info.forEach((val) => {
+        this.calculateCurrentValue(val);
+      });
+    }
+  }
   // Emit the change back to the parent component
   @Output() wealthChange = new EventEmitter<IWealthSchema>();
   constructor() {}
