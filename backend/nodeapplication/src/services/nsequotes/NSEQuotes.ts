@@ -3,6 +3,7 @@ import {
   INSEQuotesServiceInput,
   NSEQuotesRouteController,
 } from "@server/routes/services/nsequotes/NSEQuotesRouteController";
+import { Logger } from "@utils/logger/Logger";
 import Axios from "axios";
 import _ from "lodash";
 
@@ -13,15 +14,24 @@ export class NSEQuotes {
     let link = this.getLink(input.symbol);
     try {
       //let cookie = NSEQuotesRouteController.cookie;
+      NSEQuotesRouteController.getNewCookie();
 
       let resp = await Axios.get(link, {
         headers: {
           Cookie: NSEQuotesRouteController.cookie,
         },
+      }).catch((er) => {
+        console.log(er);
       });
 
-      console.log(resp.data);
-      return Promise.resolve(resp.data);
+      if (resp) {
+        console.log(resp.data);
+        return Promise.resolve(resp.data);
+      } else {
+        let logger = Logger.getLogger();
+        logger.error("Response Null");
+        throw Error;
+      }
     } catch (error) {
       console.log(error);
       throw Error;

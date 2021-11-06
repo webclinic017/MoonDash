@@ -42,7 +42,12 @@ class Backtest:
 
         thestrat = self.run_strategy()
         self.print_analysis(thestrat)
-        b = Bokeh(style='bar', plot_mode='single', scheme=Blackly())
+        plotconfig = {
+            '#:d-1': dict(
+                plot=True,
+            ),
+        }
+        b = Bokeh(style='bar', plot_mode='single', scheme=Blackly(), plotconfig=plotconfig)
         self.cerebro.plot(b, iplot=False)
 
     def add_sizer(self):
@@ -80,7 +85,11 @@ class Backtest:
         # Add higher timeframe ticker
         dataframe_higherframe = pd.read_csv(csv_path_higherframe, parse_dates=True, index_col=0)
         data_higherframe = bt.feeds.PandasData(dataname=dataframe_higherframe)
+        data_higherframe.plotinfo.plotskip = True
         self.cerebro.adddata(data_higherframe)
+        self.cerebro.datas[1].plotinfo.plot = False
+        # data_higherframe.plotinfo.plotmaster = data_lowerframe
+        # data_higherframe.plotinfo.sameaxis = True
 
     def add_stategy(self):
         self.cerebro.addstrategy(SmaCross)

@@ -19,10 +19,7 @@ export class NSEQuotesRouteController extends AbstractServiceRouteController {
 
   public static cookie: string = "";
 
-  public async InitializeController() {
-    await this.InitializeGet();
-    await this.InitializePost();
-
+  public static async getNewCookie(): Promise<string> {
     let resp = await Axios.get("https://www.nseindia.com/", {
       withCredentials: true,
     });
@@ -35,6 +32,14 @@ export class NSEQuotesRouteController extends AbstractServiceRouteController {
     cookie = cookie.substr(1);
 
     NSEQuotesRouteController.cookie = cookie;
+    return cookie;
+  }
+
+  public async InitializeController() {
+    await this.InitializeGet();
+    await this.InitializePost();
+
+    await NSEQuotesRouteController.getNewCookie();
   }
 
   public async runService(req: Request, resp: Response): Promise<any> {

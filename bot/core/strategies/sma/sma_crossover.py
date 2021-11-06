@@ -8,7 +8,8 @@ class SmaCross(bt.Strategy):
     # list of parameters which are configurable for the strategy
     params = dict(
         pfast=50,  # period for the fast moving average
-        pslow=200   # period for the slow moving average
+        pslow=200,   # period for the slow moving average
+        multi=True
     )
 
     def log(self, txt, dt=None):
